@@ -8,11 +8,16 @@ from sklearn.metrics import accuracy_score
 data = pd.read_csv("dataset-tortuga-filled.csv")
 
 # Drop the columns that are not used
-X = data.drop(["USER_ID", "PROFILE"], axis=1)
+X = data.drop(["USER_ID", "PROFILE", "NAME"], axis=1)
 y = data["PROFILE"]
+
 # Encode the target variable
 le = LabelEncoder()
 y = le.fit_transform(y)
+
+# export LabelEncoder to pkl, to be used on API
+import joblib
+joblib.dump(le, 'label_encoder.pkl')
 
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -35,7 +40,7 @@ print("Accuracy:", accuracy_score(y_test, y_pred))
 import numpy as np
 
 # Define a new observation (the values must be in the same order as in your training data)
-new_observation = np.array([[58283940, 7, 39, 29, 2, 4, 0, 2, 5, 0, 84, 74, 0]])
+new_observation = np.array([[7, 39, 29, 2, 4, 0, 2, 5, 0, 84, 74, 0]])
 
 
 # Use the model to predict the class of this new observation
