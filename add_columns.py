@@ -67,6 +67,59 @@ df['FAV_COURS'], df['HAT_COURS'] = zip(*df.apply(favorite_course, axis=1))
 # Sauvegarder le dataset modifié
 df.to_csv('dataset-tortuga-filled-modified.csv4', index=False)
 
+#____________________________________________________________________________________________________________________
+
+import pandas as pd
+import numpy as np
+
+# Charger le dataset
+df = pd.read_csv('dataset-tortuga-filled-modified4.csv')
+
+# ---- AJOUT DES COLONNES DE NOMBRE DE CLICS ----
+# Cette étape génère des nombres de clics basés sur le nombre d'heures passées pour chaque matière. 
+# L'idée est que plus un étudiant passe d'heures sur une matière, plus il est probable qu'il ait cliqué plus souvent. 
+
+subjects = ['DATASCIENCE', 'BACKEND', 'FRONTEND', 'IA', 'BDD']
+for subject in subjects:
+    # Ici, nous générons un nombre aléatoire pour chaque étudiant basé sur le nombre d'heures pour la matière correspondante. 
+    # L'hypothèse est que chaque heure équivaut approximativement à 10 clics. 
+    # Le coefficient de 10 est arbitraire et peut être ajusté selon la logique souhaitée.
+    df[f'NB_CLICKS_{subject}'] = df[f'HOURS_{subject}'] * 10 * np.random.rand(len(df))
+
+# Assurer que le nombre de clics est un entier, car nous ne pouvons pas avoir un nombre fractionnaire de clics.
+for subject in subjects:
+    df[f'NB_CLICKS_{subject}'] = df[f'NB_CLICKS_{subject}'].astype(int)
+
+# Sauvegarder le dataset modifié
+df.to_csv('dataset-tortuga-filled-modified5.csv', index=False)
+
+#____________________________________________________________________________________________________________________
+
+import pandas as pd
+import numpy as np
+
+# Charger le dataset
+df = pd.read_csv('dataset-tortuga-filled-modified5.csv')
+
+# ---- AJOUT DE LA COLONNE ORIENTATION ----
+
+# Calculer le total des heures passées et le total des clics pour chaque étudiant
+df['TOTAL_HOURS'] = df[['HOURS_DATASCIENCE', 'HOURS_BACKEND', 'HOURS_FRONTEND', 'HOURS_IA', 'HOURS_BDD']].sum(axis=1)
+df['TOTAL_CLICKS'] = df[['NB_CLICKS_DATASCIENCE', 'NB_CLICKS_BACKEND', 'NB_CLICKS_FRONTEND', 'NB_CLICKS_IA', 'NB_CLICKS_BDD']].sum(axis=1)
+
+# Nous supposons ici qu'un étudiant est orienté vers la pratique si son ratio de clics par heure est supérieur à une certaine valeur seuil.
+# Ce seuil peut être ajusté en fonction de la logique souhaitée.
+threshold = df['TOTAL_CLICKS'].mean() / df['TOTAL_HOURS'].mean()
+
+# Définir l'orientation en fonction du ratio de clics par heure
+df['ORIENTATION'] = np.where(df['TOTAL_CLICKS'] / df['TOTAL_HOURS'] > threshold, 'PRACTICE', 'THEORY')
+
+# Supprimer les colonnes intermédiaires utilisées pour le calcul (si nécessaire)
+df.drop(['TOTAL_HOURS', 'TOTAL_CLICKS'], axis=1, inplace=True)
+
+# Sauvegarder le dataset modifié
+df.to_csv('dataset-tortuga-filled-modified6.csv', index=False)
+
 
 
 
